@@ -1,0 +1,167 @@
+import calendar
+import cmath
+from datetime import datetime, date
+from math import log10
+import requests
+import streamlit as st
+import openai
+
+openai.api_key = "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"
+
+# App Title
+st.title("AI Chatbot")
+
+# Greeting
+st.header("Hello, I am a Chatbot! How can I help you?")
+
+# User Input
+user_input = st.text_input("Type your query here:")
+
+if user_input:
+    # Greet Responses
+    if "fine" in user_input or "nice" in user_input or "good" in user_input:
+        st.write("Great! How can I help you?")
+    elif "hi" in user_input:
+        st.write("Hey!")
+    elif "how are you" in user_input:
+        st.write("I am fine! What about you?")
+    elif "who are you" in user_input:
+        st.write("I am a program made by Team in Python.")
+    elif "what is your name" in user_input:
+        st.write("I am a Chatbot AI.")
+    elif "bye" in user_input:
+        st.write("Goodbye! Have a great day!")
+
+    # Calendar
+    elif "calendar" in user_input:
+        year = st.number_input("Enter the year:", min_value=1, step=1)
+        month = st.number_input("Enter the month (1-12):", min_value=1, max_value=12, step=1)
+        if st.button("Show Calendar"):
+            st.text(calendar.month(year, month))
+
+    # Time
+    elif "time" in user_input:
+        current_time = datetime.now().time()
+        st.write("Current Time:", current_time.strftime("%H:%M:%S"))
+
+    # Weather
+    elif "weather" in user_input.lower():
+        location = st.text_input("Enter the location for weather:")
+        if st.button("Get Weather"):
+            if location:
+                api_key = "0d18e9dbce8e8e1a3aedacdffad1f49d"
+                base_url = "http://api.weatherstack.com/current"
+
+                # Send a request to the API
+                params = {'access_key': api_key, 'query': location}
+                response = requests.get(base_url, params=params)
+                data = response.json()
+
+                # Check for errors
+                if "error" in data:
+                    st.error(f"Error: {data['error']['info']}")
+                else:
+                    # Extract and display weather details
+                    current = data['current']
+                    st.write(f"Weather in {data['location']['name']}, {data['location']['country']}:")
+                    st.write(f"- Temperature: {current['temperature']}°C")
+                    st.write(f"- Description: {current['weather_descriptions'][0]}")
+                    st.write(f"- Wind Speed: {current['wind_speed']} km/h")
+                    st.write(f"- Humidity: {current['humidity']}%")
+            else:
+                st.error("Please enter a location.")
+
+    # Swap Numbers
+    elif "swap" in user_input:
+        a = st.number_input("Enter the first number:")
+        b = st.number_input("Enter the second number:")
+        if st.button("Swap Numbers"):
+            a, b = b, a
+            st.write("After swapping:")
+            st.write(f"First Number: {a}")
+            st.write(f"Second Number: {b}")
+
+    # Date
+    elif "date" in user_input:
+        current_date = date.today()
+        st.write("Current Date:", current_date.strftime("%Y-%m-%d"))
+
+    # Quadratic Equation
+    elif "quadratic" in user_input:
+        a = st.number_input("Enter the value of a:")
+        b = st.number_input("Enter the value of b:")
+        c = st.number_input("Enter the value of c:")
+        if st.button("Solve Quadratic Equation"):
+            discriminant = (b ** 2) - (4 * a * c)
+            x1 = (-b + cmath.sqrt(discriminant)) / (2 * a)
+            x2 = (-b - cmath.sqrt(discriminant)) / (2 * a)
+            st.write(f"Solutions: x1 = {x1}, x2 = {x2}")
+
+    # Reverse Number
+    elif "reverse" in user_input:
+        number = st.number_input("Enter the number to reverse:", step=1)
+        if st.button("Reverse Number"):
+            reversed_number = int(str(int(number))[::-1])
+            st.write("Reversed Number:", reversed_number)
+
+    # Currency Converter
+    elif "currency" in user_input:
+        st.write("Currency Converter")
+        api_key = "d5c08cc90cbfcda6fa828ef4a009eb14"
+        base_url = f"http://apilayer.net/api/live?access_key={api_key}"
+
+        from_currency = st.text_input("Enter the base currency (e.g., USD):").upper()
+        to_currency = st.text_input("Enter the target currency (e.g., INR):").upper()
+        amount = st.number_input("Enter the amount to convert:", min_value=0.0, step=0.01)
+
+        if st.button("Convert Currency"):
+            try:
+                response = requests.get(base_url)
+                data = response.json()
+
+                if not data["success"]:
+                    st.error(f"Error: {data['error']['info']}")
+                else:
+                    rates = data["quotes"]
+                    from_rate = rates.get(f"USD{from_currency}", None)
+                    to_rate = rates.get(f"USD{to_currency}", None)
+
+                    if from_rate is None or to_rate is None:
+                        st.error("One or both currencies are not supported.")
+                    else:
+                        converted_amount = (amount / from_rate) * to_rate
+                        st.success(f"{amount:.2f} {from_currency} = {converted_amount:.2f} {to_currency}")
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
+
+    # Simple Calculator
+
+    elif "calculation" in user_input:
+        a = st.number_input("Enter value of a:")
+        b = st.number_input("Enter value of b:")
+        operator = st.selectbox("Choose an operator:", ["+", "-", "*", "/", "log"])
+        if st.button("Calculate"):
+            if operator == '+':
+                st.write("Result:", a + b)
+            elif operator == '-':
+                st.write("Result:", a - b)
+            elif operator == '*':
+                st.write("Result:", a * b)
+            elif operator == '/':
+                st.write("Result:", a / b)
+            elif operator == 'log':
+                st.write("Result:", log10(a))
+            else:
+                st.write("Invalid operator")
+    else:
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",  
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant for an IT company."},
+                    {"role": "user", "content": user_input}
+                ]
+            )
+            st.write(response['choices'][0]['message']['content'])
+        except Exception as e:
+            st.error(f"OpenAI API error: {e}")

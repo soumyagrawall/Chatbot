@@ -6,8 +6,7 @@ import requests
 import streamlit as st
 import openai
 
-openai.api_key = "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"
-
+openai.api_key = """API KEY"""
 # App Title
 st.title("AI Chatbot")
 
